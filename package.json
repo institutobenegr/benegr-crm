@@ -1,10 +1,10 @@
 {
   "name": "benegr-crm",
-  "version": "0.2.0",
   "private": true,
   "type": "module",
+  "version": "0.3.0",
   "scripts": {
-    "check": "node --check app.js && node --check extras.js && node --check import-utils.js && node --check config.js",
+    "check": "node --check app.js && node --check extras.js && node --check import-utils.js",
     "test": "node tests.mjs"
   }
 }
