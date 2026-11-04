@@ -1,0 +1,9 @@
+import assert from 'node:assert/strict';
+import {canonicalize,guessMap,parseMoney,parseDate,csvCell} from './import-utils.js';
+assert.equal(parseMoney('1.234,56','comma'),'1234.56');assert.equal(parseMoney('1234.56','dot'),'1234.56');assert.equal(parseMoney('123456','cents'),'1234.56');assert.throws(()=>parseMoney('1.234','dot'));assert.throws(()=>parseMoney('abc'));assert.throws(()=>parseMoney('97.00','comma'));assert.throws(()=>parseMoney('97,00','dot'));
+assert.equal(parseDate('04/11/2026 18:00','br','-03:00'),'2026-11-04T21:00:00.000Z');assert.equal(parseDate('11/04/2026 18:00','us','-03:00'),'2026-11-04T21:00:00.000Z');assert.throws(()=>parseDate('31/02/2026'));assert.throws(()=>parseDate('04/11/26'));
+assert.equal(guessMap(['Nome','customer_email','Contact ID','IGSID']).manychat_id,'Contact ID');assert.equal(guessMap(['Contact ID','IGSID']).igsid,'IGSID');
+const lead=canonicalize({Nome:'Maria',Instagram:'@maria.exemplo'},guessMap(['Nome','Instagram']),{source:'manychat'},2);assert.deepEqual(lead.errors,[]);assert.equal(lead.record.phone,'');assert.equal(lead.record.instagram,'maria.exemplo');
+const missing=canonicalize({Nome:'Maria'},guessMap(['Nome']),{source:'manychat'},2);assert.equal(missing.include,false);
+const paid=canonicalize({Nome:'Ana',Email:'ana@teste.com',order_id:'123',product_id:'p1',product_name:'Portal',amount:'97,00',status:'paid',purchased_at:'04/11/2026'},Object.fromEntries(['name','email','order_id','product_id','product_name','amount','status','purchased_at'].map(k=>[k,k==='name'?'Nome':k==='email'?'Email':k])),{source:'kiwify',money:'comma',date:'br',offset:'-03:00'},2);assert.deepEqual(paid.errors,[]);assert.equal(paid.record.amount,'97.00');
+assert.ok(csvCell('=1+1').startsWith(String.fromCharCode(34,39)));console.log('Normalização: valores, datas, ID/IGSID, lead sem telefone, validação de compra e proteção de CSV passaram.');
